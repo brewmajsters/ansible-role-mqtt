@@ -41,6 +41,15 @@
     state: present
   tags: install
 
+- name: MQTT | copy mosquitto config file
+  become: true
+  template:
+    src: "brewmasters.conf"
+    dest: "/etc/mosquitto/conf.d/"
+  tags:
+    - install
+    - configure
+
 - name: MQTT | ensure mosquitto broker service is started
   become: true
   service:
