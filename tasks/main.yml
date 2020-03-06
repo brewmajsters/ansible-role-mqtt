@@ -1,0 +1,50 @@
+---
+# tasks file for ansible-role-mqtt
+
+- name: MQTT | install dependencies
+  become: true
+  apt:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ mqtt_dependencies }}"
+  tags: install
+
+- name: MQTT | add GPG signing key
+  become: true
+  apt_key:
+    url: "http://repo.mosquitto.org/debian/mosquitto-repo.gpg.key"
+    state: present
+    validate_certs: true
+  register: mqtt_repo_key
+  tags: install
+
+- name: MQTT | update apt sources
+  become: true
+  when: mqtt_repo_key.changed
+  get_url:
+    url: "http://repo.mosquitto.org/debian/mosquitto-{{ ansible_distribution_release }}.list"
+    dest: /etc/apt/sources.list.d/
+  register: mqtt_apt_source
+  tags: install
+
+- name: MQTT | update apt cache
+  become: true
+  when: mqtt_apt_source.changed
+  apt:
+    update_cache: true
+  tags: install
+
+- name: MQTT | install mosquitto MQTT broker
+  become: true
+  apt:
+    name: "{{ mqtt_broker.package }}"
+    state: present
+  tags: install
+
+- name: MQTT | ensure mosquitto broker service is started
+  become: true
+  service:
+    name: "{{ mqtt_broker.service }}"
+    state: started
+    enabled: true
+  tags: install

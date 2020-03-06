@@ -1,0 +1,9 @@
+---
+# vars file for ansible-role-mqtt
+
+mqtt_dependencies:
+  - gnupg2
+
+mqtt_broker:
+  package: mosquitto
+  service: mosquitto
